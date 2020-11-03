@@ -1,9 +1,8 @@
-## xatlas
+## xatlas-web
 
-[![Appveyor CI Build Status](https://ci.appveyor.com/api/projects/status/github/jpcy/xatlas?branch=master&svg=true)](https://ci.appveyor.com/project/jpcy/xatlas) [![Travis CI Build Status](https://travis-ci.org/jpcy/xatlas.svg?branch=master)](https://travis-ci.org/jpcy/xatlas) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+xatlas-web is a wrapper for xatlas for js. It uses `emcc` to compile WASM from C++ codebase.
 
 xatlas is a small C++11 library with no external dependencies that generates unique texture coordinates suitable for baking lightmaps or texture painting.
-
 It is an independent fork of [thekla_atlas](https://github.com/Thekla/thekla_atlas), used by [The Witness](https://en.wikipedia.org/wiki/The_Witness_(2016_video_game)).
 
 ## Screenshots
@@ -21,7 +20,32 @@ It is an independent fork of [thekla_atlas](https://github.com/Thekla/thekla_atl
 
 ## How to use
 
-### Building
+### Usage for Web and JS
+
+* Add library to your `package.json`
+```
+  "devDependencies": {
+    "xatlas-web": "git+https://github.com/palashbansal96/xatlas.git#build_v1"
+  }
+```
+* Import or require class `XAtlasAPI` (from `dist/xatlas_web.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
+* Copy the file `dist/xatlas_web.wasm`, eg for webpack, install [CopyPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) and add this to the config
+```
+      new CopyPlugin({
+        patterns: [
+          { from: path.resolve('node_modules', 'xatlas-web','dist','xatlas_web.wasm'), to: path.resolve(BUILD_PATH, 'libs/') },
+        ],
+      }),
+```
+* Need to `locateFile` parameter function to the `XAtlasAPI` constructor if the `wasm` file is renamed or is not available from the website root.  
+
+### Building Web
+* Install emscripten 2. (Tested with 2.0.7 on macOS).
+* Run `npm install`
+* Run `npm run build` - this should generate files in the `dist` folder. 
+A build is already committed on the `dist` branch.
+
+### Building Native
 
 Premake is used. For CMake support, see [here](https://github.com/cpp-pm/xatlas).
 
@@ -38,6 +62,15 @@ Note: change the build configuration to "Release". The default - "Debug" - sever
 Required packages: `libgl1-mesa-dev libgtk-3-dev xorg-dev`.
 
 Install Premake version 5. Run `premake5 gmake`, `cd build/gmake`, `make`.
+
+### Generate an atlas (JS API)
+
+1. Create an empty atlas with `createAtlas`.
+2. Add one or more meshes with `addMesh`.
+3. Call `generateAtlas`. Meshes are segmented into charts, which are parameterized and packed into an atlas. The updated vertex and index buffers are returned along with the mesh object.
+4. See `source/web/index.js` for complete API and example.
+The returned buffers are of different size than the inputs.
+Cleanup with `destroyAtlas`. This also does a leak check if enabled in `build-web.sh`. see line 40. 
 
 ### Generate an atlas (simple API)
 

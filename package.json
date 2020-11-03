@@ -1,0 +1,34 @@
+{
+  "name": "xatlas-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/xatlas_web.js",
+  "scripts": {
+    "build:emcc": "./build_web.sh",
+    "build:web": "webpack --config webpack.config.js",
+    "build": "npm run build:emcc && npm run build:web",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "file-loader": "^6.2.0",
+    "source-map-loader": "^1.0.1",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/palashbansal96/xatlas.git"
+  },
+  "author": "Palash Bansal <palashbansal96@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/palashbansal96/xatlas/issues"
+  },
+  "homepage": "https://github.com/palashbansal96/xatlas#readme"
+}
