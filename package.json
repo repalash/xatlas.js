@@ -6,8 +6,7 @@
   "scripts": {
     "build:emcc": "./build_web.sh",
     "build:web": "webpack --config webpack.config.js",
-    "build": "npm run build:emcc && npm run build:web",
-    "prepare": "npm run build"
+    "build": "npm run build:emcc && npm run build:web"
   },
   "files": [
     "dist/*",
