@@ -4,9 +4,27 @@ xatlas::Atlas *atlas;
 xatlas::MeshDecl *meshDecl;
 xatlas::UvMeshDecl *uvMeshDecl;
 uint32_t nextMeshId = 0;
+bool printProgress = false;
+
+static bool ProgressCallback(xatlas::ProgressCategory category, int progress, void *userData)
+{
+    if(printProgress) {
+        printf("%s [", xatlas::StringForEnum(category));
+        for (int i = 0; i < 10; i++)
+            printf(progress / ((i + 1) * 10) ? "*" : " ");
+        printf("] %d%%\n", progress);
+    }
+    onAtlasProgress((int)category, progress);
+    return true;
+}
+
+void setProgressLogging(bool f){
+    printProgress = f;
+}
 
 void createAtlas() {
     atlas = xatlas::Create();
+    xatlas::SetProgressCallback(atlas, ProgressCallback, nullptr);
 }
 
 MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool normals, bool uvs) {
@@ -79,6 +97,13 @@ uint32_t addUvMesh() {
     delete uvMeshDecl;
     uvMeshDecl = nullptr;
     return mesh;
+}
+
+void computeCharts(const xatlas::ChartOptions chartOptions = defaultChartOptions()){
+    xatlas::ComputeCharts(atlas, chartOptions);
+}
+void packCharts(const xatlas::PackOptions packOptions=defaultPackOptions()){
+    xatlas::PackCharts(atlas, packOptions);
 }
 
 void generateAtlas(const xatlas::ChartOptions chartOptions = defaultChartOptions(), const xatlas::PackOptions packOptions=defaultPackOptions()) {
@@ -163,18 +188,22 @@ EMSCRIPTEN_BINDINGS(xatlas) {
         .field("textureSeamWeight", &xatlas::ChartOptions::textureSeamWeight)
         .field("maxCost", &xatlas::ChartOptions::maxCost)
         .field("maxIterations", &xatlas::ChartOptions::maxIterations)
-        .field("useInputMeshUvs", &xatlas::ChartOptions::maxIterations)
-        .field("fixWinding", &xatlas::ChartOptions::maxIterations);
+        .field("useInputMeshUvs", &xatlas::ChartOptions::useInputMeshUvs)
+        .field("fixWinding", &xatlas::ChartOptions::fixWinding)
+        ;
 
         emscripten::value_object<xatlas::PackOptions>("PackOptions")
+        .field("maxChartSize", &xatlas::PackOptions::maxChartSize)
+        .field("padding", &xatlas::PackOptions::padding)
+        .field("texelsPerUnit", &xatlas::PackOptions::texelsPerUnit)
+        .field("resolution", &xatlas::PackOptions::resolution)
         .field("bilinear", &xatlas::PackOptions::bilinear)
         .field("blockAlign", &xatlas::PackOptions::blockAlign)
         .field("bruteForce", &xatlas::PackOptions::bruteForce)
         .field("createImage", &xatlas::PackOptions::createImage)
-        .field("maxChartSize", &xatlas::PackOptions::maxChartSize)
-        .field("padding", &xatlas::PackOptions::padding)
-        .field("texelsPerUnit", &xatlas::PackOptions::texelsPerUnit)
-        .field("resolution", &xatlas::PackOptions::resolution);
+        .field("rotateChartsToAxis", &xatlas::PackOptions::rotateChartsToAxis)
+        .field("rotateCharts", &xatlas::PackOptions::rotateCharts)
+        ;
 
         emscripten::function("createAtlas", &createAtlas);
         emscripten::function("createMesh", &createMesh);
@@ -182,10 +211,13 @@ EMSCRIPTEN_BINDINGS(xatlas) {
         emscripten::function("addMesh", &addMesh);
         emscripten::function("addUvMesh", &addUvMesh);
         emscripten::function("generateAtlas", &generateAtlas);
+        emscripten::function("computeCharts", &computeCharts);
+        emscripten::function("packCharts", &packCharts);
         emscripten::function("getMeshData", &getMeshData);
         emscripten::function("destroyAtlas", &destroyAtlas);
         emscripten::function("destroyMeshData", &destroyMeshData);
         emscripten::function("defaultChartOptions", &defaultChartOptions);
         emscripten::function("defaultPackOptions", &defaultPackOptions);
+        emscripten::function("setProgressLogging", &setProgressLogging);
         emscripten::function("doLeakCheck", &__lsan_do_recoverable_leak_check);
 }

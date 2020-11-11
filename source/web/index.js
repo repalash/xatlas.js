@@ -5,8 +5,9 @@ export class XAtlasAPI{
     /**
      * @param onLoad {Function}
      * @param locateFile {Function} - should return path for xatlas_web.wasm, default is root of domain
+     * @param onAtlasProgress {Function} - called on progress update with mode {ProgressCategory} and counter
      */
-    constructor(onLoad, locateFile) {
+    constructor(onLoad, locateFile, onAtlasProgress) {
         this.xatlas = null;
         this.loaded = false;
         this.onLoad = onLoad ? [onLoad] : [];
@@ -16,7 +17,8 @@ export class XAtlasAPI{
          */
         this.meshes = [];
         let params = {}
-        if (locateFile) params = {locateFile};
+        if (locateFile) params = {...params, locateFile};
+        if (onAtlasProgress) params = {...params, onAtlasProgress};
         createXAtlasModule(params).then(m=>{this.moduleLoaded(m)})
     }
 
@@ -28,6 +30,7 @@ export class XAtlasAPI{
 
     createAtlas(){
         this.xatlas.createAtlas();
+        this.meshes = [];
         this.atlasCreated = true;
     }
 
@@ -105,8 +108,8 @@ export class XAtlasAPI{
     generateAtlas(chartOptions, packOptions, returnMeshes = true){
         if(!this.loaded || !this.atlasCreated) throw "Create atlas first";
         if(this.meshes.length < 1) throw "Add meshes first";
-        chartOptions = { ...this.xatlas.defaultChartOptions(), ...chartOptions};
-        packOptions = { ...this.xatlas.defaultPackOptions(), ...packOptions };
+        chartOptions = { ...this.defaultChartOptions(), ...chartOptions};
+        packOptions = { ...this.defaultPackOptions(), ...packOptions };
         this.xatlas.generateAtlas(chartOptions, packOptions);
         if(!returnMeshes) return [];
         let returnVal = [];
@@ -146,37 +149,39 @@ export class XAtlasAPI{
         return returnVal;
     }
 
-    /**
-     * @return {{maxIterations: number, straightnessWeight: number, textureSeamWeight: number, maxChartArea: number, normalDeviationWeight: number, roundnessWeight: number, maxCost: number, maxBoundaryLength: number, normalSeamWeight: number}}
-     */
     defaultChartOptions() {
         return {
-            "maxChartArea": 0,
-            "maxBoundaryLength": 0,
-            "normalDeviationWeight": 2,
-            "roundnessWeight": 0.009999999776482582,
-            "straightnessWeight": 6,
-            "normalSeamWeight": 4,
-            "textureSeamWeight": 0.5,
-            "maxCost": 2,
-            "maxIterations": 1
+            fixWinding: false,
+            maxBoundaryLength: 0,
+            maxChartArea: 0,
+            maxCost: 2,
+            maxIterations: 1,
+            normalDeviationWeight: 2,
+            normalSeamWeight: 4,
+            roundnessWeight: 0.009999999776482582,
+            straightnessWeight: 6,
+            textureSeamWeight: 0.5,
+            useInputMeshUvs: false,
         };
     }
 
-    /**
-     * @return {{maxChartSize: number, padding: number, bilinear: boolean, createImage: boolean, blockAlign: boolean, resolution: number, bruteForce: boolean, texelsPerUnit: number}}
-     */
     defaultPackOptions() {
         return {
-            "bilinear": true,
-            "blockAlign": false,
-            "bruteForce": false,
-            "createImage": false,
-            "maxChartSize": 0,
-            "padding": 0,
-            "texelsPerUnit": 0,
-            "resolution": 0
+            bilinear: true,
+            blockAlign: false,
+            bruteForce: false,
+            createImage: false,
+            maxChartSize: 0,
+            padding: 0,
+            resolution: 0,
+            rotateCharts: true,
+            rotateChartsToAxis: true,
+            texelsPerUnit: 0
         };
+    }
+
+    setProgressLogging(flag){
+        this.xatlas.setProgressLogging(flag);
     }
 
     /**
@@ -198,6 +203,7 @@ export class XAtlasAPI{
     destroyAtlas(){
         this.atlasCreated = false;
         this.xatlas.destroyAtlas();
+        this.meshes = [];
         this.xatlas.doLeakCheck();
     }
 
