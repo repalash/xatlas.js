@@ -7,7 +7,8 @@ const BUILD_PATH = path.resolve(__dirname, 'dist');
 const BUILD_FILE_NAME = 'xatlas_web';
 const LIBRARY_NAME = 'XAtlas';
 const LIBRARY_TARGET = 'umd';
-
+// const MODE = "development"
+const MODE = "production"
 
 const entry = {
 };
@@ -15,14 +16,15 @@ const entry = {
 entry[BUILD_FILE_NAME] = path.join(SRC_PATH, 'index.js');
 
 module.exports = {
-    mode: "production",
+    mode: MODE,
     devtool: 'source-map',
     entry: entry,
     output: {
         filename: '[name].js',
         path: BUILD_PATH,
         library: LIBRARY_NAME,
-        libraryTarget: LIBRARY_TARGET
+        libraryTarget: LIBRARY_TARGET,
+        globalObject: 'this',
     },
     // This is necessary due to the fact that emscripten puts both Node and web
     // code into one file. The node part uses Node’s `fs` module to load the wasm
@@ -36,6 +38,13 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+                test: /\.worker\.js/,
+                use: {
+                    loader: "worker-loader",
+                    options: { fallback: true }
+                }
+            },
             {
                 test: /\.wasm$/,
                 type: 'javascript/auto',

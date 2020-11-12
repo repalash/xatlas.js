@@ -1,41 +1,28 @@
-## xatlas-web
+## xatlas-web 
 
-xatlas-web is a wrapper for xatlas for js. It uses `emcc` to compile WASM from C++ codebase.
+xatlas-web is a wrapper for xatlas for js. It uses `emcc` to compile WASM from C++ codebase and can be used as a simple js module or as a webworker with [comlink](https://github.com/GoogleChromeLabs/comlink)
 
-xatlas is a small C++11 library with no external dependencies that generates unique texture coordinates suitable for baking lightmaps or texture painting.
+[xatlas](https://github.com/jpcy/xatlas) is a small C++11 library with no external dependencies that generates unique texture coordinates suitable for baking lightmaps or texture painting.
 It is an independent fork of [thekla_atlas](https://github.com/Thekla/thekla_atlas), used by [The Witness](https://en.wikipedia.org/wiki/The_Witness_(2016_video_game)).
-
-## Screenshots
-
-#### Example - [Cesium Milk Truck](https://github.com/KhronosGroup/glTF-Sample-Models)
-| Viewer | Random packing | Brute force packing |
-|---|---|---|
-| [![Viewer](https://user-images.githubusercontent.com/3744372/69908461-48cace80-143e-11ea-8b73-efea5a9f036e.png)](https://user-images.githubusercontent.com/3744372/69908460-48323800-143e-11ea-8b18-58087493c8e9.png) | ![Random packing](https://user-images.githubusercontent.com/3744372/68638607-d4db8b80-054d-11ea-8238-845d94789a2d.gif) | ![Brute force packing](https://user-images.githubusercontent.com/3744372/68638614-da38d600-054d-11ea-82d9-43e558c46d50.gif) |
-
-#### Example - [Godot Third Person Shooter demo](https://github.com/godotengine/tps-demo)
-[![Godot TPS](https://user-images.githubusercontent.com/3744372/69908463-48cace80-143e-11ea-8035-b669d1a455f6.png)](https://user-images.githubusercontent.com/3744372/69908462-48cace80-143e-11ea-8946-a2c596ec8028.png)
-
-#### [Graphite/Geogram](http://alice.loria.fr/index.php?option=com_content&view=article&id=22)
-![Graphite/Geogram](https://user-images.githubusercontent.com/19478253/69903392-c0deb900-1398-11ea-8a52-c211bc7803a9.gif)
 
 ## How to use
 
 ### Usage for Web and JS
 
 * Add library to your `package.json`
-```
+```json
   "devDependencies": {
     "xatlas-web": "git+https://github.com/palashbansal96/xatlas.git#build_v1"
   }
 ```
 * Import or require class `XAtlasAPI` (from `dist/xatlas_web.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
 * Copy the file `dist/xatlas_web.wasm`, eg for webpack, install [CopyPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) and add this to the config
-```
+```javascript
       new CopyPlugin({
         patterns: [
           { from: path.resolve('node_modules', 'xatlas-web','dist','xatlas_web.wasm'), to: path.resolve(BUILD_PATH, 'libs/') },
         ],
-      }),
+      })
 ```
 * Need to `locateFile` parameter function to the `XAtlasAPI` constructor if the `wasm` file is renamed or is not available from the website root.  
 
@@ -45,26 +32,21 @@ It is an independent fork of [thekla_atlas](https://github.com/Thekla/thekla_atl
 * Run `npm run build` - this should generate files in the `dist` folder. 
 A build is already committed on the `dist` branch.
 
-### Building Native
-
-Premake is used. For CMake support, see [here](https://github.com/cpp-pm/xatlas).
-
-Integration into an existing build is simple, only `xatlas.cpp` and `xatlas.h` are required. They can be found in [source/xatlas](https://github.com/jpcy/xatlas/blob/master/source/xatlas)
-
-#### Windows
-
-Run `build\premake.bat`. Open `build\vs2019\xatlas.sln`.
-
-Note: change the build configuration to "Release". The default - "Debug" - severely degrades performance.
-
-#### Linux
-
-Required packages: `libgl1-mesa-dev libgtk-3-dev xorg-dev`.
-
-Install Premake version 5. Run `premake5 gmake`, `cd build/gmake`, `make`.
-
 ### Generate an atlas (JS API)
 
+First import the API class `import {XAtlasAPI} from "xatlas-web"` and create an object.
+```javascript
+const xAtlas = new XAtlasAPI(()=>{
+        console.log("on module loadede");
+    }, (path, dir)=>{
+        if (path === "xatlas_web.wasm") return "libs/" + path;
+        return dir + path;
+    }, (mode, progress)=>{
+        console.log("on progress ", mode, progress);
+    }
+);
+```
+Use the object `xAtlas` as:
 1. Create an empty atlas with `createAtlas`.
 2. Add one or more meshes with `addMesh`.
 3. Call `generateAtlas`. Meshes are segmented into charts, which are parameterized and packed into an atlas. The updated vertex and index buffers are returned along with the mesh object.
@@ -72,38 +54,67 @@ Install Premake version 5. Run `premake5 gmake`, `cd build/gmake`, `make`.
 The returned buffers are of different size than the inputs.
 Cleanup with `destroyAtlas`. This also does a leak check if enabled in `build-web.sh`. see line 40. 
 
-### Generate an atlas (simple API)
 
-1. Create an empty atlas with `xatlas::Create`.
-2. Add one or more meshes with `xatlas::AddMesh`.
-3. Call `xatlas::Generate`. Meshes are segmented into charts, which are parameterized and packed into an atlas.
+### Use as webworker, in JS API. 
+This should be preferable, does not hang the web browser tab.
+Load the xatlas_web.js file as web worker. For webpack, add to config:
+```javascript
+    rules: [
+        {
+            test: /\.worker\.js/,
+            use: {
+                loader: "worker-loader",
+                options: { fallback: true }
+            }
+        }
+    ]
+```
+Use in js example:
+```javascript
+import { wrap, proxy } from "comlink";
+import XAtlasWorker from "xatlas-web";
+/**
+ * @class XAtlasAPI
+ */
+const XAtlasAPI = wrap(new XAtlasWorker());
+let xAtlas = null;
 
-The `xatlas::Atlas` instance created in the first step now contains the result: each input mesh added by `xatlas::AddMesh` has a corresponding new mesh with a UV channel. New meshes have more vertices (the UV channel adds seams), but the same number of indices.
+// use in function 
+async () => {
+    if(xAtlas == null){
+        xAtlas = await new XAtlasAPI(
+                    proxy(()=>console.log("loaded")), 
+                    proxy((path, dir)=>(path === "xatlas_web.wasm" ? "http://localhost:8000/libs/"+path:null)),
+                    proxy((mode, progress)=> console.log("on progress ", mode, progress))
+        );
+    }
+    while (!(await xAtlas.loaded)){
+        await new Promise(r => setTimeout(r, 500)); // wait for load
+    }
+    await xAtlas.createAtlas();
+    // Add mesh
+    await xAtlas.addMesh(arguments);
+    let meshes = await xAtlas.generateAtlas(chartOptions, packOptions, true);
+    // Process meshes
+    await xAtlas.destroyAtlas();
+}
+```
 
-Cleanup with `xatlas::Destroy`.
-
-[Example code here.](https://github.com/jpcy/xatlas/blob/master/source/examples/example.cpp)
-
-### Generate an atlas (tools/editor integration API)
-
-Instead of calling `xatlas::Generate`, the following functions can be called in sequence:
-
-1. `xatlas::ComputeCharts`: meshes are segmented into charts and parameterized.
-2. `xatlas::PackCharts`: charts are packed into one or more atlases.
-
-All of these functions take a progress callback. Return false to cancel.
-
-You can call any of these functions multiple times, followed by the proceeding functions, to re-generate the atlas. E.g. calling `xatlas::PackCharts` multiple times to tweak options like unit to texel scale and resolution.
-
-See the [viewer](https://github.com/jpcy/xatlas/tree/master/source/examples/viewer) for example code.
-
-### Pack multiple atlases into a single atlas
+### Pack multiple atlases into a single atlas (c++)
 
 1. Create an empty atlas with `xatlas::Create`.
 2. Add one or more meshes with `xatlas::AddUvMesh`.
 3. Call `xatlas::PackCharts`.
 
-[Example code here.](https://github.com/jpcy/xatlas/blob/master/source/examples/example_uvmesh.cpp)
+Full Readme of `xatlas` at its [main repository](https://github.com/jpcy/xatlas/blob/master/README.md).  
+
+## Screenshots
+
+#### Example - [Cesium Milk Truck](https://github.com/KhronosGroup/glTF-Sample-Models)
+| Viewer | Random packing | Brute force packing |
+|---|---|---|
+| [![Viewer](https://user-images.githubusercontent.com/3744372/69908461-48cace80-143e-11ea-8b73-efea5a9f036e.png)](https://user-images.githubusercontent.com/3744372/69908460-48323800-143e-11ea-8b18-58087493c8e9.png) | ![Random packing](https://user-images.githubusercontent.com/3744372/68638607-d4db8b80-054d-11ea-8238-845d94789a2d.gif) | ![Brute force packing](https://user-images.githubusercontent.com/3744372/68638614-da38d600-054d-11ea-82d9-43e558c46d50.gif) |
+
 
 ## Technical information / related publications
 

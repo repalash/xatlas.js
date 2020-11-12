@@ -18,7 +18,6 @@ echo "============================================="
   emcc \
     -std=c++1y \
     -DXA_MULTITHREADED=0 \
-    -DNDEBUG \
     ${OPTIMIZE} \
     --bind \
     --no-entry \
@@ -26,7 +25,7 @@ echo "============================================="
     -s ALLOW_MEMORY_GROWTH=1 \
     -s MALLOC=emmalloc \
     -s MODULARIZE=1 \
-    -s ENVIRONMENT='web,worker' \
+    -s ENVIRONMENT='worker' \
     -s EXPORT_NAME="createXAtlasModule" \
     -o ./source/web/build/xatlas_web.js \
     --js-library ./source/web/jslib.js \
@@ -34,6 +33,11 @@ echo "============================================="
     source/xatlas/xatlas.cpp \
 \
     -s ASSERTIONS=1 \
+    -DNDEBUG \
+#    -s TOTAL_MEMORY=278mb \
+#    -D SANITIZE_ADDRESS_CHECK \
+#    -fsanitize=address \
+#    -g3
 #    Uncomment above line for leak checking
 
   # Move artifacts

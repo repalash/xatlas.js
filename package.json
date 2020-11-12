@@ -20,6 +20,9 @@
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   },
+  "dependencies": {
+    "comlink": "^4.3.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/palashbansal96/xatlas.git"

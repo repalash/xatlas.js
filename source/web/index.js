@@ -16,10 +16,17 @@ export class XAtlasAPI{
          * @type {{meshId: number, vertices: Float32Array, normals: Float32Array|null, coords: Float32Array|null, meshObj: any}[]}
          */
         this.meshes = [];
-        let params = {}
-        if (locateFile) params = {...params, locateFile};
+        let params = {};
         if (onAtlasProgress) params = {...params, onAtlasProgress};
-        createXAtlasModule(params).then(m=>{this.moduleLoaded(m)})
+        const ctor = (loc)=>{
+            params = {...params, locateFile: ((path, dir)=> ( (loc && path === "xatlas_web.wasm") ? loc : dir+path) ) };
+            createXAtlasModule(params).then(m=>{this.moduleLoaded(m)});
+        }
+        if (locateFile) {
+            let pp = locateFile("xatlas_web.wasm", "");
+            if (pp&&pp.then) pp.then(ctor);
+            else ctor(pp);
+        }else ctor()
     }
 
     moduleLoaded(mod){
@@ -214,3 +221,7 @@ export class XAtlasAPI{
         this.onLoad.push(fn)
     }
 }
+
+import { expose } from "comlink";
+
+expose(XAtlasAPI);
