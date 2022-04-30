@@ -27,7 +27,7 @@ echo "============================================="
     -s MODULARIZE=1 \
     -s ENVIRONMENT='worker' \
     -s EXPORT_NAME="createXAtlasModule" \
-    -o ./source/web/build/xatlas_web.js \
+    -o ./source/web/build/xatlas.js \
     --js-library ./source/web/jslib.js \
     source/web/*.cpp \
     source/xatlas/xatlas.cpp \
@@ -43,8 +43,8 @@ echo "============================================="
   # Move artifacts
   rm -rf dist
   mkdir -p dist
-  mv source/web/build/xatlas_web.wasm dist
-#  mv source/web/build/xatlas_web.wasm.map dist
+  mv source/web/build/xatlas.wasm dist
+#  mv source/web/build/xatlas.wasm.map dist
 
 )
 echo "============================================="

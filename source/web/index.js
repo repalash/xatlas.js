@@ -1,5 +1,7 @@
 import createXAtlasModule from "./build/xatlas_web.js"
+import { expose } from "comlink";
 
+let _onLoad = ()=>{} //  we cannot put it in the object, otherwise we cannot access it from the outside
 export class XAtlasAPI{
 
     /**
@@ -10,7 +12,7 @@ export class XAtlasAPI{
     constructor(onLoad, locateFile, onAtlasProgress) {
         this.xatlas = null;
         this.loaded = false;
-        this.onLoad = onLoad ? [onLoad] : [];
+        _onLoad = onLoad || (()=>{});
         this.atlasCreated = false;
         /**
          * @type {{meshId: number, vertices: Float32Array, normals: Float32Array|null, coords: Float32Array|null, meshObj: any}[]}
@@ -32,7 +34,7 @@ export class XAtlasAPI{
     moduleLoaded(mod){
         this.xatlas = mod;
         this.loaded = true;
-        for(let onLoad of this.onLoad) onLoad(mod);
+        if(_onLoad) _onLoad();
     }
 
     createAtlas(){
@@ -151,7 +153,7 @@ export class XAtlasAPI{
                     vertex.coords[2*i + 1] = coords[2*oldIndex + 1];
                 }
             }
-            returnVal.push({index: index, vertex: vertex, mesh: meshObj})
+            returnVal.push({index: index, vertex: vertex, mesh: meshObj, vertexCount: ret.newVertexCount, oldIndexes: oldIndexes});
         }
         return returnVal;
     }
@@ -214,14 +216,6 @@ export class XAtlasAPI{
         this.xatlas.doLeakCheck();
     }
 
-    /**
-     * @param fn {Function}
-     */
-    addOnLoad (fn) {
-        this.onLoad.push(fn)
-    }
 }
-
-import { expose } from "comlink";
 
 expose(XAtlasAPI);

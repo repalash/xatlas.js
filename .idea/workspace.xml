@@ -37,12 +37,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1d9c8c27-c699-466f-ad4f-aab1e5b741ab" name="Default Changelist" comment="">
+    <list default="true" id="1d9c8c27-c699-466f-ad4f-aab1e5b741ab" name="Default Changelist" comment="temp3">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build_web.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build_web.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/xatlas_web.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/xatlas_web.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/xatlas_web.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/dist/xatlas_web.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/xatlas_web.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/xatlas_web.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/xatlas_web.wasm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/web/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/source/web/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
@@ -51,6 +54,11 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
@@ -81,6 +89,17 @@
     <option name="currentCommit" value="1" />
     <option name="onto" value="5571fc7ef0d06832947c0a935ccdcf083f7a9264" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectId" id="1jjRdmNu3sC4bSk7EQKClHFlDoR" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -88,6 +107,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/web" />
@@ -131,13 +151,23 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="build:web" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build:web" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.build:web" />
         <item itemvalue="npm.build_web" />
         <item itemvalue="npm.build_web" />
         <item itemvalue="npm.build" />
-        <item itemvalue="npm.build_web" />
       </list>
     </recent_temporary>
   </component>
@@ -160,6 +190,7 @@
       <workItem from="1605088032833" duration="3111000" />
       <workItem from="1605127000875" duration="681000" />
       <workItem from="1605127759669" duration="13028000" />
+      <workItem from="1651247898746" duration="13823000" />
     </task>
     <task id="LOCAL-00001" summary="Web build config and API, some changes.">
       <created>1605049806607</created>
@@ -212,7 +243,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="temp3" />
@@ -220,70 +250,5 @@
     <MESSAGE value="build_v1" />
     <MESSAGE value="Bug fixes and improvements" />
     <option name="LAST_COMMIT_MESSAGE" value="Bug fixes and improvements" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="2612" y="323" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1604315920949">
-      <screen x="1920" y="23" width="1920" height="1000" />
-    </state>
-    <state x="2612" y="323" key="#com.intellij.fileTypes.FileTypeChooser/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1604315920949" />
-    <state x="2478" y="23" key="CommitChangelistDialog2" timestamp="1605050266551">
-      <screen x="1920" y="23" width="1920" height="1000" />
-    </state>
-    <state x="2478" y="23" key="CommitChangelistDialog2/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605050266551" />
-    <state x="2020" y="129" width="1720" height="846" key="DiffContextDialog" timestamp="1605137286433">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state x="100" y="129" width="1720" height="846" key="DiffContextDialog/1920.23.1920.1000/0.23.1920.1057@0.23.1920.1057" timestamp="1604439254741" />
-    <state x="2020" y="123" width="1720" height="800" key="DiffContextDialog/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605083087373" />
-    <state x="2020" y="129" width="1720" height="846" key="DiffContextDialog/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137286433" />
-    <state x="2711" y="426" key="Git.Rebase.Log.Action.NewCommitMessage.Dialog" timestamp="1605049877723">
-      <screen x="1920" y="23" width="1920" height="1000" />
-    </state>
-    <state x="2711" y="426" key="Git.Rebase.Log.Action.NewCommitMessage.Dialog/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605049877723" />
-    <state width="1878" height="266" key="GridCell.Tab.0.bottom" timestamp="1605137206639">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state width="1878" height="262" key="GridCell.Tab.0.bottom/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605083087247" />
-    <state width="1878" height="266" key="GridCell.Tab.0.bottom/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137206639" />
-    <state width="1878" height="266" key="GridCell.Tab.0.center" timestamp="1605137206638">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state width="1878" height="262" key="GridCell.Tab.0.center/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605083087246" />
-    <state width="1878" height="266" key="GridCell.Tab.0.center/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137206638" />
-    <state width="1878" height="266" key="GridCell.Tab.0.left" timestamp="1605137206637">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state width="1878" height="262" key="GridCell.Tab.0.left/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605083087246" />
-    <state width="1878" height="266" key="GridCell.Tab.0.left/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137206637" />
-    <state width="1878" height="266" key="GridCell.Tab.0.right" timestamp="1605137206638">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state width="1878" height="262" key="GridCell.Tab.0.right/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605083087247" />
-    <state width="1878" height="266" key="GridCell.Tab.0.right/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137206638" />
-    <state x="469" y="162" key="SettingsEditor" timestamp="1604441345953">
-      <screen x="0" y="23" width="1920" height="1057" />
-    </state>
-    <state x="469" y="162" key="SettingsEditor/1920.23.1920.1000/0.23.1920.1057@0.23.1920.1057" timestamp="1604441345953" />
-    <state x="2480" y="266" key="Vcs.Push.Dialog.v2" timestamp="1605137255112">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state x="2480" y="253" key="Vcs.Push.Dialog.v2/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605050757500" />
-    <state x="2480" y="266" key="Vcs.Push.Dialog.v2/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605137255112" />
-    <state x="2535" y="144" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1604346974231">
-      <screen x="1920" y="23" width="1920" height="1000" />
-    </state>
-    <state x="2535" y="144" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1604346974231" />
-    <state x="2582" y="276" width="596" height="552" key="find.popup" timestamp="1605136544019">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state x="662" y="276" width="596" height="552" key="find.popup/1920.23.1920.1000/0.23.1920.1057@0.23.1920.1057" timestamp="1604410891800" />
-    <state x="2582" y="262" width="596" height="522" key="find.popup/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605088071744" />
-    <state x="2582" y="276" width="596" height="552" key="find.popup/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605136544019" />
-    <state x="2545" y="257" width="670" height="715" key="search.everywhere.popup" timestamp="1605133942222">
-      <screen x="1920" y="23" width="1920" height="1057" />
-    </state>
-    <state x="625" y="257" width="670" height="715" key="search.everywhere.popup/1920.23.1920.1000/0.23.1920.1057@0.23.1920.1057" timestamp="1605127055194" />
-    <state x="2545" y="244" width="670" height="676" key="search.everywhere.popup/1920.23.1920.1000/0.23.1920.1057@1920.23.1920.1000" timestamp="1605088039758" />
-    <state x="2545" y="257" width="670" height="715" key="search.everywhere.popup/1920.23.1920.1057/0.23.1920.1000@1920.23.1920.1057" timestamp="1605133942222" />
   </component>
 </project>

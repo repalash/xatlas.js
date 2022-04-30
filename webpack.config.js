@@ -4,9 +4,9 @@ const path = require("path");
 const SRC_PATH = path.resolve(__dirname, 'source', 'web');
 const NODE_MOD_PATH = path.resolve(__dirname, 'node_modules');
 const BUILD_PATH = path.resolve(__dirname, 'dist');
-const BUILD_FILE_NAME = 'xatlas_web';
+const BUILD_FILE_NAME = 'xatlas';
 const LIBRARY_NAME = 'XAtlas';
-const LIBRARY_TARGET = 'umd';
+const LIBRARY_TARGET = 'self';
 // const MODE = "development"
 const MODE = "production"
 
