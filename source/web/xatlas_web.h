@@ -24,15 +24,25 @@ struct UvMeshBufferInfo {
     uint32_t uvOffset;
 };
 
+struct SubAtlasMeshInfo {
+    uint32_t start;
+    uint32_t count;
+    uint32_t atlasIndex;
+};
+
 struct AtlasMeshBufferInfo {
     uint32_t newVertexCount;
     uint32_t newIndexCount;
     uint32_t indexOffset;
     uint32_t originalIndexOffset;
     uint32_t uvOffset;
+//     int32_t atlasIndexOffset;
+    std::vector<SubAtlasMeshInfo> subMeshes;
 };
 
 extern void createAtlas();
+
+extern xatlas::Atlas getAtlas();
 
 extern MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool normals, bool uvs);
 

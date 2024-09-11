@@ -25,6 +25,7 @@ echo "============================================="
     -s ALLOW_MEMORY_GROWTH=1 \
     -s MALLOC=emmalloc \
     -s MODULARIZE=1 \
+    -s EXPORT_ES6=0 \
     -s ENVIRONMENT='worker' \
     -s EXPORT_NAME="createXAtlasModule" \
     -o ./source/web/build/xatlas.js \

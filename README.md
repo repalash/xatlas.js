@@ -18,19 +18,20 @@ Check out [xatlas-three](https://github.com/repalash/xatlas-three) package to di
     "xatlasjs": "^0.1.0"
   }
 ```
-* Import or require class `XAtlasAPI` (from `dist/xatlas_web.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
-* Copy the file `dist/xatlas_web.wasm`, eg for webpack, install [CopyPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) and add this to the config
+* Import or require class `XAtlasAPI` (from `dist/xatlas.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
+* Copy the file `dist/xatlas.wasm`, eg for webpack, install [CopyPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) and add this to the config
 ```javascript
       new CopyPlugin({
         patterns: [
-          { from: path.resolve('node_modules', 'xatlasjs','dist','xatlas_web.wasm'), to: path.resolve(BUILD_PATH, 'libs/') },
+          { from: path.resolve('node_modules', 'xatlasjs','dist','xatlas.wasm'), to: path.resolve(BUILD_PATH, 'libs/') },
         ],
       })
 ```
-* Need to `locateFile` parameter function to the `XAtlasAPI` constructor if the `wasm` file is renamed or is not available from the website root.  
+* Need to pass the `locateFile` parameter function to the `XAtlasAPI` constructor if the `wasm` file is renamed or is not available from the website root.  
 
 ### Building Web
-* Install emscripten 2. (Tested with 2.0.7 on macOS).
+* Install emsdk and emscripten.
+* `emsdk activate 3.1.65`
 * Run `npm install`
 * Run `npm run build` - this should generate files in the `dist` folder. 
 
@@ -41,7 +42,7 @@ First import the API class `import {XAtlasAPI} from "xatlasjs"` and create an ob
 const xAtlas = new XAtlasAPI(()=>{
         console.log("on module loadede");
     }, (path, dir)=>{
-        if (path === "xatlas_web.wasm") return "libs/" + path;
+        if (path === "xatlas.wasm") return "libs/" + path;
         return dir + path;
     }, (mode, progress)=>{
         console.log("on progress ", mode, progress);
@@ -59,7 +60,7 @@ Cleanup with `destroyAtlas`. This also does a leak check if enabled in `build-we
 
 ### Use as webworker, in JS API. 
 This should be preferable, does not hang the web browser tab.
-Load the xatlas_web.js file as web worker. For webpack, add to config:
+Load the xatlas.js file as web worker. For webpack, add to config:
 ```javascript
     rules: [
         {
@@ -86,7 +87,7 @@ async () => {
     if(xAtlas == null){
         xAtlas = await new XAtlasAPI(
                     proxy(()=>console.log("loaded")), 
-                    proxy((path, dir)=>(path === "xatlas_web.wasm" ? "http://localhost:8000/libs/"+path:null)),
+                    proxy((path, dir)=>(path === "xatlas.wasm" ? "http://localhost:8000/libs/"+path:null)),
                     proxy((mode, progress)=> console.log("on progress ", mode, progress))
         );
     }
@@ -126,7 +127,6 @@ Y. O’Donnell. [Precomputed Global Illumination in Frostbite](https://media.con
 
 [xatlas-three](https://github.com/repalash/xatlas-three)
 
-
 ## Related projects
 
 [aobaker](https://github.com/prideout/aobaker) - Ambient occlusion baking. Uses [thekla_atlas](https://github.com/Thekla/thekla_atlas).
@@ -140,3 +140,34 @@ Y. O’Donnell. [Precomputed Global Illumination in Frostbite](https://media.con
 [seamoptimizer](https://github.com/ands/seamoptimizer) - A C/C++ single-file library that minimizes the hard transition errors of disjoint edges in lightmaps.
 
 [simpleuv](https://github.com/huxingyi/simpleuv/) - Automatic UV Unwrapping Library for Dust3D.
+
+[xatlas-web](https://github.com/MozillaReality/xatlas-web) - Original web port of xatlas.
+
+## Install emcc
+
+```bash
+brew install emscripten
+```
+or 
+```bash
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+emcc
+```
+
+Then 
+```bash
+npm install
+npm run build
+```
+
+emscripten version:
+```
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.65 (7f8a05dd4e37cbd7ffde6d624f91fd545f7b52e3)
+clang version 20.0.0git (https:/github.com/llvm/llvm-project 547917aebd1e79a8929b53f0ddf3b5185ee4df74)
+Target: wasm32-unknown-emscripten
+Thread model: posix
+```

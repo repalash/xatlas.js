@@ -27,6 +27,10 @@ void createAtlas() {
     xatlas::SetProgressCallback(atlas, ProgressCallback, nullptr);
 }
 
+xatlas::Atlas getAtlas() {
+    return *atlas;
+}
+
 MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool normals, bool uvs) {
     MeshBufferInfo meshBufferInfo;
     meshBufferInfo.meshId = nextMeshId++;
@@ -122,14 +126,54 @@ AtlasMeshBufferInfo getMeshData(uint32_t meshId) {
     const xatlas::Mesh &mesh = atlas->meshes[meshId];
 
     uint32_t *originalIndexArray = new uint32_t[mesh.vertexCount];
+//     int32_t *atlasIndexArray = new int32_t[mesh.vertexCount];
     float *uvArray = new float[mesh.vertexCount * 2];
+
+    bool hasSubAtlas = atlas->atlasCount > 1;
+    // stable_sort by atlasIndex
+    if(hasSubAtlas) {
+        if(mesh.indexArray)
+            std::stable_sort(mesh.indexArray, mesh.indexArray + mesh.indexCount, [&](const uint32_t &a, const uint32_t &b) {
+                return mesh.vertexArray[a].atlasIndex < mesh.vertexArray[b].atlasIndex;
+            });
+        else
+            std::stable_sort(mesh.vertexArray, mesh.vertexArray + mesh.vertexCount, [](const xatlas::Vertex &a, const xatlas::Vertex &b) {
+                return a.atlasIndex < b.atlasIndex;
+            });
+    }
+
+    std::vector<SubAtlasMeshInfo> subMeshes;
 
     for (uint32_t i = 0; i < mesh.vertexCount; i++) {
         const xatlas::Vertex &vertex = mesh.vertexArray[i];
         originalIndexArray[i] = vertex.xref;
+        // atlasIndexArray[i] = vertex.atlasIndex;
         uvArray[i * 2] = vertex.uv[0] / atlas->width;
         uvArray[i * 2 + 1] = vertex.uv[1] / atlas->height;
     }
+
+    if(hasSubAtlas){
+        uint32_t start = 0;
+        uint32_t count = 0;
+        uint32_t vertexCount = mesh.indexArray ? mesh.indexCount : mesh.vertexCount;
+        // uint32_t atlasIndex = vertexCount > 0 ? mesh.vertexArray[0].atlasIndex : 0;
+        uint32_t atlasIndex = vertexCount > 0 ? mesh.vertexArray[mesh.indexArray ? mesh.indexArray[0] : 0].atlasIndex : 0;
+        for (uint32_t i = 0; i < vertexCount; i++) {
+            count++;
+            uint32_t currentIndex = mesh.vertexArray[mesh.indexArray ? mesh.indexArray[i] : i].atlasIndex;
+            if (hasSubAtlas && (currentIndex != atlasIndex || i == mesh.vertexCount - 1)) {
+                SubAtlasMeshInfo subMesh;
+                subMesh.start = start;
+                subMesh.count = count;
+                subMesh.atlasIndex = atlasIndex;
+                subMeshes.push_back(subMesh);
+                start = i;
+                count = 0;
+                atlasIndex = currentIndex;
+            }
+        }
+    }
+
 
     AtlasMeshBufferInfo atlasMeshBufferInfo;
 
@@ -138,6 +182,8 @@ AtlasMeshBufferInfo getMeshData(uint32_t meshId) {
     atlasMeshBufferInfo.indexOffset = (uint32_t) mesh.indexArray;
     atlasMeshBufferInfo.originalIndexOffset = (uint32_t) originalIndexArray;
     atlasMeshBufferInfo.uvOffset = (uint32_t) uvArray;
+    atlasMeshBufferInfo.subMeshes = subMeshes;
+//     atlasMeshBufferInfo.atlasIndexOffset = (int32_t) atlasIndexArray;
 
     return atlasMeshBufferInfo;
 }
@@ -145,6 +191,7 @@ AtlasMeshBufferInfo getMeshData(uint32_t meshId) {
 void destroyMeshData(const AtlasMeshBufferInfo atlasMeshBufferInfo) {
     delete[] (uint32_t *) atlasMeshBufferInfo.originalIndexOffset;
     delete[] (float *) atlasMeshBufferInfo.uvOffset;
+//     delete[] (int32_t *) atlasMeshBufferInfo.atlasIndexOffset;
 }
 
 void destroyAtlas() {
@@ -159,6 +206,14 @@ void __lsan_do_recoverable_leak_check() {}
 #endif
 
 EMSCRIPTEN_BINDINGS(xatlas) {
+        emscripten::value_object<xatlas::Atlas>("Atlas")
+                .field("width", &xatlas::Atlas::width)
+                .field("height", &xatlas::Atlas::height)
+                .field("atlasCount", &xatlas::Atlas::atlasCount)
+//                 .field("chartCount", &xatlas::Atlas::chartCount)
+                .field("meshCount", &xatlas::Atlas::meshCount)
+                .field("texelsPerUnit", &xatlas::Atlas::texelsPerUnit);
+
         emscripten::value_object<MeshBufferInfo>("MeshBufferInfo")
                 .field("meshId", &MeshBufferInfo::meshId)
                 .field("indexOffset", &MeshBufferInfo::indexOffset)
@@ -171,12 +226,21 @@ EMSCRIPTEN_BINDINGS(xatlas) {
         .field("indexOffset", &UvMeshBufferInfo::indexOffset)
         .field("uvOffset", &UvMeshBufferInfo::uvOffset);
 
+        emscripten::value_object<SubAtlasMeshInfo>("SubAtlasMeshInfo")
+        .field("start", &SubAtlasMeshInfo::start)
+        .field("count", &SubAtlasMeshInfo::count)
+        .field("atlasIndex", &SubAtlasMeshInfo::atlasIndex);
+
         emscripten::value_object<AtlasMeshBufferInfo>("AtlasMeshBufferInfo")
         .field("newVertexCount", &AtlasMeshBufferInfo::newVertexCount)
         .field("newIndexCount", &AtlasMeshBufferInfo::newIndexCount)
         .field("indexOffset", &AtlasMeshBufferInfo::indexOffset)
         .field("originalIndexOffset", &AtlasMeshBufferInfo::originalIndexOffset)
-        .field("uvOffset", &AtlasMeshBufferInfo::uvOffset);
+//         .field("atlasIndexOffset", &AtlasMeshBufferInfo::atlasIndexOffset)
+        .field("uvOffset", &AtlasMeshBufferInfo::uvOffset)
+        .field("subMeshes", &AtlasMeshBufferInfo::subMeshes);
+
+        emscripten::register_vector<SubAtlasMeshInfo>("SubAtlasMeshInfoVector");
 
         emscripten::value_object<xatlas::ChartOptions>("ChartOptions")
         .field("maxChartArea", &xatlas::ChartOptions::maxChartArea)
@@ -206,6 +270,7 @@ EMSCRIPTEN_BINDINGS(xatlas) {
         ;
 
         emscripten::function("createAtlas", &createAtlas);
+        emscripten::function("getAtlas", &getAtlas);
         emscripten::function("createMesh", &createMesh);
         emscripten::function("createUvMesh", &createUvMesh);
         emscripten::function("addMesh", &addMesh);
