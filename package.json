@@ -1,12 +1,13 @@
 {
   "name": "xatlasjs",
-  "version": "0.2.0-dev.1",
+  "version": "0.2.0-dev.2",
   "description": "",
   "main": "dist/xatlas.js",
   "scripts": {
     "build:emcc": "./build_web.sh",
+    "build:emcc:node": "ENVIRONMENT=node ./build_web.sh",
     "build:web": "webpack --config webpack.config.js",
-    "build": "npm run build:emcc && npm run build:web"
+    "build": "npm run build:emcc && npm run build:web && npm run build:emcc:node"
   },
   "files": [
     "dist/*",

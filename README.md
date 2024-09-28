@@ -15,10 +15,10 @@ Check out [xatlas-three](https://github.com/repalash/xatlas-three) package to di
 * Add library to your `package.json` or do `npm install xatlasjs`
 ```json
   "devDependencies": {
-    "xatlasjs": "^0.1.0"
+    "xatlasjs": "^0.2.0"
   }
 ```
-* Import or require class `XAtlasAPI` (from `dist/xatlas.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
+* Import or require class `Api` (from `dist/xatlas.js`) in your codebase and use wrapper functions for xatlas. See comments in `source/web/index.js`.
 * Copy the file `dist/xatlas.wasm`, eg for webpack, install [CopyPlugin](https://webpack.js.org/plugins/copy-webpack-plugin/) and add this to the config
 ```javascript
       new CopyPlugin({
@@ -27,7 +27,7 @@ Check out [xatlas-three](https://github.com/repalash/xatlas-three) package to di
         ],
       })
 ```
-* Need to pass the `locateFile` parameter function to the `XAtlasAPI` constructor if the `wasm` file is renamed or is not available from the website root.  
+* Need to pass the `locateFile` parameter function to the `Api` constructor if the `wasm` file is renamed or is not available from the website root.  
 
 ### Building Web
 * Install emsdk and emscripten.
@@ -37,14 +37,15 @@ Check out [xatlas-three](https://github.com/repalash/xatlas-three) package to di
 
 ### Generate an atlas (JS API)
 
-First import the API class `import {XAtlasAPI} from "xatlasjs"` and create an object.
+First import the API class `import {Api} from "xatlasjs"` and create an object.
+
 ```javascript
-const xAtlas = new XAtlasAPI(()=>{
+const xAtlas = new Api(() => {
         console.log("on module loadede");
-    }, (path, dir)=>{
+    }, (path, dir) => {
         if (path === "xatlas.wasm") return "libs/" + path;
         return dir + path;
-    }, (mode, progress)=>{
+    }, (mode, progress) => {
         console.log("on progress ", mode, progress);
     }
 );
@@ -55,6 +56,7 @@ Use the object `xAtlas` as:
 3. Call `generateAtlas`. Meshes are segmented into charts, which are parameterized and packed into an atlas. The updated vertex and index buffers are returned along with the mesh object.
 4. See `source/web/index.js` for complete API and example.
 The returned buffers are of different size than the inputs.
+Use `oldIndexes` to map vertex data for the new indexes to the old ones.
 Cleanup with `destroyAtlas`. This also does a leak check if enabled in `build-web.sh`. see line 40. 
 
 
@@ -77,15 +79,15 @@ Use in js example:
 import { wrap, proxy } from "comlink";
 import XAtlasWorker from "xatlasjs";
 /**
- * @class XAtlasAPI
+ * @class Api
  */
-const XAtlasAPI = wrap(new XAtlasWorker());
+const Api = wrap(new XAtlasWorker());
 let xAtlas = null;
 
 // use in function 
 async () => {
     if(xAtlas == null){
-        xAtlas = await new XAtlasAPI(
+        xAtlas = await new Api(
                     proxy(()=>console.log("loaded")), 
                     proxy((path, dir)=>(path === "xatlas.wasm" ? "http://localhost:8000/libs/"+path:null)),
                     proxy((mode, progress)=> console.log("on progress ", mode, progress))
@@ -172,3 +174,10 @@ clang version 20.0.0git (https:/github.com/llvm/llvm-project 547917aebd1e79a8929
 Target: wasm32-unknown-emscripten
 Thread model: posix
 ```
+
+[//]: # (source "./emsdk/emsdk_env.sh")
+
+
+## Usage in nodejs
+
+Build then `node source/test/test.mjs`, check the source for usage.

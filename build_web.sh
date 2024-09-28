@@ -7,6 +7,8 @@ export LDFLAGS="${OPTIMIZE}"
 export CFLAGS="${OPTIMIZE}"
 export CPPFLAGS="${OPTIMIZE}"
 
+ENVIRONMENT=${ENVIRONMENT:-'web,worker'}
+
 echo "============================================="
 echo "Compiling wasm bindings"
 echo "============================================="
@@ -26,7 +28,7 @@ echo "============================================="
     -s MALLOC=emmalloc \
     -s MODULARIZE=1 \
     -s EXPORT_ES6=0 \
-    -s ENVIRONMENT='worker' \
+    -s ENVIRONMENT="${ENVIRONMENT}" \
     -s EXPORT_NAME="createXAtlasModule" \
     -o ./source/web/build/xatlas.js \
     --js-library ./source/web/jslib.js \
@@ -42,10 +44,19 @@ echo "============================================="
 #    Uncomment above line for leak checking
 
   # Move artifacts
-  rm -rf dist
-  mkdir -p dist
-  mv source/web/build/xatlas.wasm dist
-#  mv source/web/build/xatlas.wasm.map dist
+  if [ "$ENVIRONMENT" == "node" ]; then
+    rm -rf dist/node
+    mkdir -p dist/node
+    mv source/web/build/xatlas.wasm dist/node
+    mv source/web/build/xatlas.js dist/node
+    cp source/web/api.mjs dist/node
+    cp source/web/node.worker.mjs dist/node/worker.mjs
+  else
+    rm -rf dist
+    mkdir -p dist
+    mv source/web/build/xatlas.wasm dist
+  fi
+  #  mv source/web/build/xatlas.wasm.map dist
 
 )
 echo "============================================="
