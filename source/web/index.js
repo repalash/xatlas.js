@@ -15,7 +15,7 @@ export class XAtlasAPI{
         _onLoad = onLoad || (()=>{});
         this.atlasCreated = false;
         /**
-         * @type {{meshId: number, vertices: Float32Array, normals: Float32Array|null, tangents: Float32Array|null, coords: Float32Array|null, meshObj: any}[]}
+         * @type {{meshId: number, vertices: Float32Array, normals: Float32Array|null, coords: Float32Array|null, meshObj: any}[]}
          */
         this.meshes = [];
         let params = {};
@@ -49,14 +49,13 @@ export class XAtlasAPI{
      * @param vertices {Float32Array}
      * @param normals {Float32Array}
      * @param coords {Float32Array}
-     * @param meshObj {any}
+     * @param meshObj {any} - identifier for the mesh (uuid)
      * @param useNormals {boolean}
      * @param useCoords {boolean}
      * @param scale {number|[number, number, number]}
-     * @param tangents {Float32Array}
-     * @return {null | {indexes: (Float32Array | null), vertices: Float32Array, normals: (Float32Array | null), tangents: (Float32Array | null), meshId: number, coords: (Float32Array | null), meshObj: any}}
+     * @return {null | {indexes: (Float32Array | null), vertices: Float32Array, normals: (Float32Array | null), meshId: number, coords: (Float32Array | null), meshObj: any}}
      */
-    addMesh(indexes, vertices, normals=null, coords=null, meshObj=undefined, useNormals = false, useCoords = false, scale =1, tangents=null){
+    addMesh(indexes, vertices, normals=null, coords=null, meshObj=undefined, useNormals = false, useCoords = false, scale =1){
         if(!this.loaded || !this.atlasCreated) throw "Create atlas first";
         const meshDesc = this.xatlas.createMesh(vertices.length / 3, indexes.length, normals != null && useNormals, coords != null && useCoords)
         this.xatlas.HEAPU16.set(indexes, meshDesc.indexOffset/2);
@@ -88,7 +87,6 @@ export class XAtlasAPI{
             normals: normals || null,
             indexes: indexes || null,
             coords: coords || null,
-            tangents: tangents || null
         }
         this.meshes.push(ret);
         return ret;
@@ -140,7 +138,7 @@ export class XAtlasAPI{
             texelsPerUnit: _atlas.texelsPerUnit,
             // image:
         }
-        for (const {meshId, meshObj, vertices, normals, coords, tangents} of this.meshes) {
+        for (const {meshId, meshObj, vertices, normals, coords} of this.meshes) {
             const ret = this.getMeshData(meshId)
             const vCount = ret.newVertexCount;
             const index = new Uint16Array(this.xatlas.HEAPU32.subarray(ret.indexOffset / 4, ret.indexOffset / 4 + ret.newIndexCount))
@@ -160,8 +158,6 @@ export class XAtlasAPI{
             vertex.coords1 = xcoords;
             if (normals)
                 vertex.normals = new Float32Array(vCount * 3);
-            if (tangents)
-                vertex.tangents = new Float32Array(vCount * 3);
             if (coords)
                 vertex.coords = new Float32Array(vCount * 2);
             else vertex.coords = vertex.coords1;
@@ -175,11 +171,6 @@ export class XAtlasAPI{
                     vertex.normals[3 * i + 0] = normals[3 * oldIndex + 0];
                     vertex.normals[3 * i + 1] = normals[3 * oldIndex + 1];
                     vertex.normals[3 * i + 2] = normals[3 * oldIndex + 2];
-                }
-                if (vertex.tangents && tangents) {
-                    vertex.tangents[3 * i + 0] = tangents[3 * oldIndex + 0];
-                    vertex.tangents[3 * i + 1] = tangents[3 * oldIndex + 1];
-                    vertex.tangents[3 * i + 2] = tangents[3 * oldIndex + 2];
                 }
                 if (vertex.coords && coords) {
                     vertex.coords[2 * i + 0] = coords[2 * oldIndex + 0];

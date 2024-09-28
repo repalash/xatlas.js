@@ -160,6 +160,7 @@ emcc
 
 Then 
 ```bash
+emsdk activate 3.1.65
 npm install
 npm run build
 ```
