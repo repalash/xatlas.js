@@ -53,7 +53,7 @@ export class XAtlasAPI{
      * @param useNormals {boolean}
      * @param useCoords {boolean}
      * @param scale {number|[number, number, number]}
-     * @return {null | {indexes: (Float32Array | null), vertices: Float32Array, normals: (Float32Array | null), meshId: number, coords: (Float32Array | null), meshObj: any}}
+     * @return {null | {indexes: Uint16Array, vertices: Float32Array, normals: (Float32Array | null), meshId: number, coords: (Float32Array | null), meshObj: any}}
      */
     addMesh(indexes, vertices, normals=null, coords=null, meshObj=undefined, useNormals = false, useCoords = false, scale =1){
         if(!this.loaded || !this.atlasCreated) throw "Create atlas first";
@@ -85,7 +85,7 @@ export class XAtlasAPI{
             meshObj: meshObj,
             vertices: vertices,
             normals: normals || null,
-            indexes: normals || null,
+            indexes: indexes || null,
             coords: coords || null,
         };
         this.meshes.push(ret);
