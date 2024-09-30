@@ -27,7 +27,7 @@ void createAtlas() {
     xatlas::SetProgressCallback(atlas, ProgressCallback, nullptr);
 }
 
-MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool normals, bool uvs) {
+MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool uint32Indices, bool normals, bool uvs) {
     MeshBufferInfo meshBufferInfo;
     meshBufferInfo.meshId = nextMeshId++;
 
@@ -35,8 +35,13 @@ MeshBufferInfo createMesh(uint32_t vertexCount, uint32_t indexCount, bool normal
     meshDecl->vertexCount = vertexCount;
     meshDecl->indexCount = indexCount;
 
-    meshDecl->indexData = new uint16_t[indexCount];
-    meshDecl->indexFormat = xatlas::IndexFormat::UInt16;
+    if (uint32Indices) {
+        meshDecl->indexData = new uint32_t[indexCount];
+        meshDecl->indexFormat = xatlas::IndexFormat::UInt32;
+    } else {
+        meshDecl->indexData = new uint16_t[indexCount];
+        meshDecl->indexFormat = xatlas::IndexFormat::UInt16;
+    }
     meshBufferInfo.indexOffset = (uint32_t) meshDecl->indexData;
 
     meshDecl->vertexPositionData = new float[vertexCount * 3];

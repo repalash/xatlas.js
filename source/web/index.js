@@ -57,8 +57,12 @@ export class XAtlasAPI{
      */
     addMesh(indexes, vertices, normals=null, coords=null, meshObj=undefined, useNormals = false, useCoords = false, scale =1){
         if(!this.loaded || !this.atlasCreated) throw "Create atlas first";
-        let meshDesc = this.xatlas.createMesh(vertices.length/3, indexes.length, normals != null && useNormals, coords != null && useCoords);
-        this.xatlas.HEAPU16.set(indexes, meshDesc.indexOffset/2);
+        let meshDesc = this.xatlas.createMesh(vertices.length/3, indexes.length, indexes instanceof Uint32Array, normals != null && useNormals, coords != null && useCoords);
+        if (indexes instanceof Uint32Array) {
+            this.xatlas.HEAPU32.set(indexes, meshDesc.indexOffset/4);
+        } else {
+            this.xatlas.HEAPU16.set(indexes, meshDesc.indexOffset/2);
+        }
 
         let vs = new Float32Array([...vertices]);
         if(scale!==1) {
